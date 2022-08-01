@@ -28,8 +28,8 @@ export default {
   },
   data() {
     return {
-      email: '',
-      password: '',
+      email: null,
+      password: null,
       kakao_login_url: process.env.VUE_APP_API_URL + "/oauth2/authorization/kakao"
     }
   },

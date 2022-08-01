@@ -3,6 +3,7 @@ import Main from "@/components/Main";
 import Login from "@/components/Login";
 import Join from "@/components/Join";
 import StudyCreate from "@/components/StudyCreate";
+import StudyInfo from "@/components/StudyInfo";
 
 const routes = [
     {
@@ -24,6 +25,11 @@ const routes = [
         path: '/studies/create',
         name: 'StudyCreate',
         component: StudyCreate
+    },
+    {
+        path: '/studies/:id',
+        name: 'StudyInfo',
+        component: StudyInfo
     }
 ];
 

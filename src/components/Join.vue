@@ -26,9 +26,9 @@ export default {
   name: "Join",
   data() {
     return {
-      email: '',
-      password: '',
-      nickname: ''
+      email: null,
+      password: null,
+      nickname: null
     }
   },
   methods: {

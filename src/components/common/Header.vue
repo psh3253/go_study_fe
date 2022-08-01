@@ -43,7 +43,7 @@
 </template>
 
 <script>
-//import router from "@/router";
+import router from "@/router";
 
 export default {
   // eslint-disable-next-line vue/multi-word-component-names
@@ -64,6 +64,8 @@ export default {
       .then(function (response) {
         if(response.status === 200) {
           localStorage.setItem('isLogin', 'false');
+          localStorage.removeItem('userEmail');
+          router.push("/")
         }
       })
     }
