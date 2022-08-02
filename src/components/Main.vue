@@ -1,12 +1,12 @@
 <template>
   <Header></Header>
   <div class="d-flex justify-content-end">
-    <router-link v-if="isLogin" to="/studies/create" class="btn btn-primary mx-3 mt-3">스터디 생성</router-link>
+    <router-link v-if="isLogin === 'true'" to="/studies/create" class="btn btn-primary mx-3 mt-3">스터디 생성</router-link>
   </div>
   <div class="my-3 mx-2">
     <div class="row row-cols-4">
       <div class="col" v-for="study in studies" :key="study.id">
-        <router-link class="card mx-1 my-1 text-decoration-none text-black" :to='"/studies/" + study.id'>
+        <router-link to='#' class="card mx-1 my-1 text-decoration-none text-black" @click="goStudyInfo(study.id)">
           <div class="carousel" data-bs-ride="carousel">
             <div class="carousel-inner">
               <div class="carousel-item active">
@@ -57,6 +57,7 @@
 
 <script>
 import Header from './common/Header';
+import router from "@/router";
 
 export default {
   // eslint-disable-next-line vue/multi-word-component-names
@@ -89,6 +90,14 @@ export default {
     });
   },
   methods: {
+    goStudyInfo(study_id) {
+      if(this.isLogin === null || this.isLogin === 'false') {
+        alert("로그인이 필요합니다.");
+        router.push("/login");
+        return;
+      }
+      router.push('/studies/' + study_id);
+    }
   }
 }
 </script>

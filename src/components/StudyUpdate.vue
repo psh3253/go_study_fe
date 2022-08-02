@@ -12,19 +12,21 @@
       </div>
       <div class="mb-3">
         <select class="form-select" aria-label="category" v-model="category">
-          <option value="0" disabled hidden>카테고리</option>
-          <option v-for="category in categories" :key=category.id :value=category.id >{{ category.name }}</option>
+          <option value="0" hidden disabled>카테고리</option>
+          <option v-for="category in categories" :key=category.id :value=category.id>{{ category.name }}</option>
         </select>
       </div>
       <div class="mb-3 d-flex">
         <div class="form-check me-3">
-          <input class="form-check-input" type="radio" name="type" id="online" checked v-model="type" value="ONLINE" @click="is_location_disabled = true">
+          <input class="form-check-input" type="radio" name="type" id="online" checked v-model="type" value="ONLINE"
+                 @click="is_location_disabled = true">
           <label class="form-check-label" for="online">
             온라인
           </label>
         </div>
         <div class="form-check">
-          <input class="form-check-input" type="radio" name="type" id="offline" v-model="type" value="OFFLINE" @click="is_location_disabled = false">
+          <input class="form-check-input" type="radio" name="type" id="offline" v-model="type" value="OFFLINE"
+                 @click="is_location_disabled = false">
           <label class="form-check-label" for="offline">
             오프라인
           </label>
@@ -32,7 +34,8 @@
       </div>
       <div class="mb-3">
         <label for="location" class="form-label">장소</label>
-        <input class="form-control" type="text" id="location" size="50" v-model="location" v-bind:disabled="is_location_disabled">
+        <input class="form-control" type="text" id="location" size="50" v-model="location"
+               v-bind:disabled="is_location_disabled">
       </div>
       <div class="mb-3">
         <label for="recruitment-number" class="form-label">모집 인원</label>
@@ -54,13 +57,15 @@
       </div>
       <div class="mb-3 d-flex">
         <div class="form-check me-3">
-          <input class="form-check-input" type="radio" name="join-type" id="free" checked v-model="join_type" value="FREE">
+          <input class="form-check-input" type="radio" name="join-type" id="free" checked v-model="join_type"
+                 value="FREE">
           <label class="form-check-label" for="free">
             자유 가입
           </label>
         </div>
         <div class="form-check">
-          <input class="form-check-input" type="radio" name="join-type" id="approval" v-model="join_type" value="APPROVAL">
+          <input class="form-check-input" type="radio" name="join-type" id="approval" v-model="join_type"
+                 value="APPROVAL">
           <label class="form-check-label" for="approval">
             승인 가입
           </label>
@@ -77,20 +82,15 @@
 
 <script>
 import Header from "@/components/common/Header";
-import router from "@/router";
 
 export default {
-  name: "StudyCreate",
-  components: {
-    Header
-  },
+  name: "StudyUpdate",
   data() {
     return {
-      is_location_disabled: true,
       categories: null,
       name: null,
       image: null,
-      category: 0,
+      category: null,
       type: 'ONLINE',
       location: null,
       recruitment_number: 0,
@@ -98,6 +98,9 @@ export default {
       join_type: 'FREE',
       introduce: ""
     }
+  },
+  components: {
+    Header
   },
   created() {
     const vm = this;
@@ -107,51 +110,35 @@ export default {
       },
       withCredentials: true
     })
-        .then(function(response) {
-          if(response.status === 200) {
+        .then(function (response) {
+          if (response.status === 200) {
             vm.categories = response.data
           }
-        }).catch(function(error) {
+        }).catch(function (error) {
       console.error(error);
     });
-  },
-  methods: {
-    createStudy() {
-      if(this.category === 0) {
-        alert('카테고리를 선택해주세요.');
-        return;
+
+    this.axios.get('/api/v1/studies/' + this.$route.params.id, {
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+      },
+      withCredentials: true
+    }).then(function (response) {
+      if (response.status === 200) {
+        const study = response.data;
+        console.log(study);
+        vm.name = study.name;
+        vm.category = study.categoryId;
+        vm.type = study.type;
+        vm.location = study.location;
+        vm.recruitment_number = study.recruitmentNumber
+        vm.visibility = study.visibility;
+        vm.join_type = study.joinType;
+        vm.introduce = study.introduce;
       }
-      if(this.recruitment_number < 1) {
-        alert('모집 인원은 최소 1명 이여야 합니다.');
-        return;
-      }
-       const formData = new FormData();
-       formData.append('name', this.name);
-       formData.append('image', this.image[0]);
-       formData.append('categoryId', this.category);
-       formData.append('type', this.type);
-       formData.append('location', this.location);
-       formData.append('recruitmentNumber', this.recruitment_number);
-       formData.append('visibility', this.visibility);
-       formData.append('joinType', this.join_type);
-       formData.append('introduce', this.introduce);
-      this.axios.post('/api/v1/studies', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          'Access-Control-Allow-Origin': '*'
-        },
-        withCredentials: true
-      }).then(function(response) {
-        if(response.status === 200) {
-          router.push('/');
-        }
-      }).catch(function(error) {
-        console.error(error);
-      })
-    },
-    selectImage() {
-      this.image = this.$refs.image.files;
-    }
+    }).catch(function (error) {
+      console.error(error);
+    })
   },
   watch: {
     introduce: function () {

@@ -43,7 +43,6 @@
 </template>
 
 <script>
-import router from "@/router";
 
 export default {
   // eslint-disable-next-line vue/multi-word-component-names
@@ -62,11 +61,12 @@ export default {
         withCredentials: true
       })
       .then(function (response) {
+        // eslint-disable-next-line no-empty
         if(response.status === 200) {
-          localStorage.setItem('isLogin', 'false');
-          localStorage.removeItem('userEmail');
-          router.push("/")
+
         }
+      }).catch(function(error) {
+        console.error(error);
       })
     }
   }

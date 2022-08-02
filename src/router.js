@@ -4,6 +4,7 @@ import Login from "@/components/Login";
 import Join from "@/components/Join";
 import StudyCreate from "@/components/StudyCreate";
 import StudyInfo from "@/components/StudyInfo";
+import StudyUpdate from "@/components/StudyUpdate";
 
 const routes = [
     {
@@ -30,6 +31,11 @@ const routes = [
         path: '/studies/:id',
         name: 'StudyInfo',
         component: StudyInfo
+    },
+    {
+        path: '/studies/:id/update',
+        name: 'StudyUpdate',
+        component: StudyUpdate
     }
 ];
 
