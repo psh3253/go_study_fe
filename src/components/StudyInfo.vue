@@ -8,6 +8,28 @@
         <router-link class="btn btn-primary me-3" :to="'/studies/' + study.id + '/update'">수정</router-link>
         <button class="btn btn-danger" @click="deleteStudy">삭제</button>
       </div>
+      <div class="d-flex justify-content-end mb-3" v-else-if="study.creatorEmail !== user_email && study.isRecruiting && study.currentNumber < study.recruitmentNumber && !is_participant && !is_applicant">
+        <div v-if="study.joinType === 'FREE'">
+          <button class="btn btn-primary" @click="participateStudy">스터디 신청</button>
+        </div>
+        <div v-else>
+          <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#participationModal">
+            스터디 신청
+          </button>
+        </div>
+      </div>
+      <div class="d-flex justify-content-end mb-3" v-else>
+        <div v-if="is_participant">
+          <button type="button" class="btn btn-danger">
+            스터디 탈퇴
+          </button>
+        </div>
+        <div v-else-if="is_applicant">
+          <button type="button" class="btn btn-success">
+            스터디 신청 취소
+          </button>
+        </div>
+      </div>
       <p class="fw-bold h1 text-center mb-3">{{ study.name }}</p>
       <div class="d-flex justify-content-center fw-bold h5 mb-5">
         <div class="me-3">
@@ -81,6 +103,28 @@
       </div>
     </div>
   </div>
+  <div class="modal fade" id="participationModal" tabindex="-1" aria-labelledby="participationModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="participationModalLabel">스터디 가입 신청</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form class="mx-3 my-3">
+            <div class="mb-3">
+              <label for="message" class="form-label">내용({{message.length}}/50)</label>
+              <textarea class="form-control" id="message" v-model="message" rows="3" placeholder="스터디에 가입하기 위한 본인의 간단한 소개를 적어주세요."></textarea>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+          <button type="button" class="btn btn-primary" @click="participateStudy">신청</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -98,9 +142,13 @@ export default {
       isLogin: this.$cookies.get('IsLogin'),
       study: null,
       participants: null,
+      applicants: null,
       image_url: null,
       default_image_url: process.env.VUE_APP_API_URL + '/images/user-default-image',
-      user_email: this.$cookies.get('UserEmail')
+      user_email: this.$cookies.get('UserEmail'),
+      message: '',
+      is_participant: false,
+      is_applicant: false
     }
   },
   created() {
@@ -133,10 +181,30 @@ export default {
         .then(function (response) {
           if (response.status === 200) {
             vm.participants = response.data;
+            if(vm.participants.filter(participant => participant.email === vm.user_email).length > 0)
+              vm.is_participant = true;
           }
         }).catch(function (error) {
       console.error(error);
     });
+
+    this.axios.get('/api/v1/studies/' + this.$route.params.id + '/applicants', {
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+      },
+      withCredentials: true
+    }).then(function(response) {
+      if (response.status === 200) {
+        vm.applicants = response.data;
+        if(vm.applicants.filter(applicant => applicant.email === vm.user_email).length > 0)
+          vm.is_applicant = true;
+      }
+    })
+  },
+  watch: {
+    message: function () {
+      this.message = this.message.substring(0, 50);
+    }
   },
   methods: {
     closeStudy() {
@@ -173,6 +241,48 @@ export default {
       }).catch(function (error) {
         console.error(error);
       })
+    },
+
+    participateStudy() {
+      if(this.study.joinType === 'FREE') {
+        if(!confirm("스터디를 신청하시겠습니까?"))
+          return;
+        this.axios.post('/api/v1/studies/' + this.study.id + '/participate', {}, {
+          headers: {
+            'Access-Control-Allow-Origin': '*'
+          },
+          withCredentials: true
+        })
+        .then(function(response) {
+          if(response.status === 200) {
+            alert('스터디 가입 신청이 완료되었습니다.');
+            router.go();
+          }
+        }).catch(function (error) {
+          console.error(error);
+        });
+      }
+      else
+      {
+        if(!confirm("스터디를 신청하시겠습니까?"))
+          return;
+        this.axios.post('/api/v1/studies/' + this.study.id + '/participate', {
+          message: this.message
+        }, {
+          headers: {
+            'Access-Control-Allow-Origin': '*'
+          },
+          withCredentials: true
+        })
+            .then(function(response) {
+              if(response.status === 200) {
+                alert('스터디에 가입되었습니다.');
+                router.go();
+              }
+            }).catch(function (error) {
+          console.error(error);
+        });
+      }
     }
   }
 }
