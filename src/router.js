@@ -5,6 +5,8 @@ import Join from "@/components/Join";
 import StudyCreate from "@/components/StudyCreate";
 import StudyInfo from "@/components/StudyInfo";
 import StudyUpdate from "@/components/StudyUpdate";
+import StudyRedirect from "@/components/StudyRedirect";
+import Profile from "@/components/Profile";
 
 const routes = [
     {
@@ -36,7 +38,18 @@ const routes = [
         path: '/studies/:id/update',
         name: 'StudyUpdate',
         component: StudyUpdate
+    },
+    {
+        path: '/:accessUrl',
+        name: 'StudyRedirect',
+        component: StudyRedirect
+    },
+    {
+        path: '/profile',
+        name: 'Profile',
+        component: Profile
     }
+
 ];
 
 const router = createRouter({

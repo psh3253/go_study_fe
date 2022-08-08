@@ -3,33 +3,53 @@
   <div class="d-flex justify-content-center">
     <div style="width: 80%">
       <img class="mb-3" :src="image_url" alt="" style="width: 100%; height: 500px">
-      <div class="d-flex justify-content-end mb-3" v-if="study.creatorEmail === user_email && study.isRecruiting">
-        <button class="btn btn-success me-3" @click="closeStudy">스터디 마감</button>
-        <router-link class="btn btn-primary me-3" :to="'/studies/' + study.id + '/update'">수정</router-link>
-        <button class="btn btn-danger" @click="deleteStudy">삭제</button>
-      </div>
-      <div class="d-flex justify-content-end mb-3" v-else-if="study.creatorEmail !== user_email && study.isRecruiting && study.currentNumber < study.recruitmentNumber && !is_participant && !is_applicant">
-        <div v-if="study.joinType === 'FREE'">
-          <button class="btn btn-primary" @click="participateStudy">스터디 신청</button>
-        </div>
-        <div v-else>
-          <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#participationModal">
-            스터디 신청
+      <div class="d-flex justify-content-between">
+        <div class="d-flex mb-3">
+          <label for="accessUrl" class="form-label"></label>
+          <input type="url" id="accessUrl" class="me-1" :value="domain_url + '/' + study.accessUrl" size="30"
+                 disabled>
+          <button type="button" class="btn btn-primary me-3" @click="copyAccessUrl">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard"
+                 viewBox="0 0 16 16">
+              <path
+                  d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
+              <path
+                  d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
+            </svg>&nbsp;복사
           </button>
         </div>
-      </div>
-      <div class="d-flex justify-content-end mb-3" v-else>
-        <div v-if="is_participant">
-          <button type="button" class="btn btn-danger">
-            스터디 탈퇴
-          </button>
+        <div>
+          <div class="d-flex mb-3" v-if="study.creatorEmail === user_email && study.isRecruiting">
+            <button class="btn btn-success me-3" @click="closeStudy">스터디 마감</button>
+            <router-link class="btn btn-primary me-3" :to="'/studies/' + study.id + '/update'">수정</router-link>
+            <button class="btn btn-danger" @click="deleteStudy">삭제</button>
+          </div>
+          <div class="d-flex mb-3"
+               v-else-if="study.creatorEmail !== user_email && study.isRecruiting && study.currentNumber < study.recruitmentNumber && !is_participant && !is_applicant">
+            <div v-if="study.joinType === 'FREE'">
+              <button class="btn btn-primary" @click="participateStudy">스터디 참석</button>
+            </div>
+            <div v-else>
+              <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#applicationModal">
+                스터디 신청
+              </button>
+            </div>
+          </div>
+          <div class="d-flex mb-3" v-else>
+            <div v-if="is_participant">
+              <button type="button" class="btn btn-danger" @click="withdrawStudy">
+                스터디 탈퇴
+              </button>
+            </div>
+            <div v-else-if="is_applicant">
+              <button type="button" class="btn btn-success" @click="cancelApplication">
+                스터디 신청 취소
+              </button>
+            </div>
+          </div>
         </div>
-        <div v-else-if="is_applicant">
-          <button type="button" class="btn btn-success">
-            스터디 신청 취소
-          </button>
-        </div>
       </div>
+
       <p class="fw-bold h1 text-center mb-3">{{ study.name }}</p>
       <div class="d-flex justify-content-center fw-bold h5 mb-5">
         <div class="me-3">
@@ -103,18 +123,20 @@
       </div>
     </div>
   </div>
-  <div class="modal fade" id="participationModal" tabindex="-1" aria-labelledby="participationModalLabel" aria-hidden="true">
+  <div class="modal fade" id="applicationModal" tabindex="-1" aria-labelledby="applicationModalLabel"
+       aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="participationModalLabel">스터디 가입 신청</h5>
+          <h5 class="modal-title" id="applicationModalLabel">스터디 가입 신청</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
           <form class="mx-3 my-3">
             <div class="mb-3">
-              <label for="message" class="form-label">내용({{message.length}}/50)</label>
-              <textarea class="form-control" id="message" v-model="message" rows="3" placeholder="스터디에 가입하기 위한 본인의 간단한 소개를 적어주세요."></textarea>
+              <label for="message" class="form-label">내용({{ message.length }}/50)</label>
+              <textarea class="form-control" id="message" v-model="message" rows="3"
+                        placeholder="스터디에 가입하기 위한 본인의 간단한 소개를 적어주세요."></textarea>
             </div>
           </form>
         </div>
@@ -139,6 +161,7 @@ export default {
   data() {
     return {
       api_url: process.env.VUE_APP_API_URL,
+      domain_url: process.env.VUE_APP_DOMAIN_URL,
       isLogin: this.$cookies.get('IsLogin'),
       study: null,
       participants: null,
@@ -153,7 +176,7 @@ export default {
   },
   created() {
     const vm = this;
-    if(this.isLogin === null || this.isLogin === 'false') {
+    if (this.isLogin === null || this.isLogin === 'false') {
       window.location.href = '/login';
       return;
     }
@@ -181,7 +204,7 @@ export default {
         .then(function (response) {
           if (response.status === 200) {
             vm.participants = response.data;
-            if(vm.participants.filter(participant => participant.email === vm.user_email).length > 0)
+            if (vm.participants.filter(participant => participant.email === vm.user_email).length > 0)
               vm.is_participant = true;
           }
         }).catch(function (error) {
@@ -193,10 +216,10 @@ export default {
         'Access-Control-Allow-Origin': '*',
       },
       withCredentials: true
-    }).then(function(response) {
+    }).then(function (response) {
       if (response.status === 200) {
         vm.applicants = response.data;
-        if(vm.applicants.filter(applicant => applicant.email === vm.user_email).length > 0)
+        if (vm.applicants.filter(applicant => applicant.email === vm.user_email).length > 0)
           vm.is_applicant = true;
       }
     })
@@ -208,7 +231,7 @@ export default {
   },
   methods: {
     closeStudy() {
-      if(!confirm("스터디가 마감되면 더 이상 모집, 수정, 삭제할 수 없습니다. 마감하시겠습니까?"))
+      if (!confirm("스터디가 마감되면 더 이상 모집, 수정, 삭제할 수 없습니다. 마감하시겠습니까?"))
         return;
       this.axios.post('/api/v1/studies/' + this.study.id + '/close', {}, {
         headers: {
@@ -216,7 +239,7 @@ export default {
         },
         withCredentials: true
       }).then(function (response) {
-        if(response.status === 200) {
+        if (response.status === 200) {
           alert('스터디가 마감되었습니다.');
           router.go();
         }
@@ -226,7 +249,7 @@ export default {
     },
 
     deleteStudy() {
-      if(!confirm("스터디를 삭제하시겠습니까?"))
+      if (!confirm("스터디를 삭제하시겠습니까?"))
         return;
       this.axios.delete('/api/v1/studies/' + this.study.id, {
         headers: {
@@ -234,7 +257,7 @@ export default {
         },
         withCredentials: true
       }).then(function (response) {
-        if(response.status === 200) {
+        if (response.status === 200) {
           alert('스터디가 삭제되었습니다.');
           router.replace('/');
         }
@@ -244,8 +267,9 @@ export default {
     },
 
     participateStudy() {
-      if(this.study.joinType === 'FREE') {
-        if(!confirm("스터디를 신청하시겠습니까?"))
+      const vm = this;
+      if (this.study.joinType === 'FREE') {
+        if (!confirm("스터디를 신청하시겠습니까?"))
           return;
         this.axios.post('/api/v1/studies/' + this.study.id + '/participate', {}, {
           headers: {
@@ -253,18 +277,19 @@ export default {
           },
           withCredentials: true
         })
-        .then(function(response) {
-          if(response.status === 200) {
-            alert('스터디 가입 신청이 완료되었습니다.');
-            router.go();
-          }
-        }).catch(function (error) {
+            .then(function (response) {
+              if (response.status === 200) {
+                if (vm.study.joinType === 'FREE')
+                  alert('스터디 가입이 완료되었습니다.');
+                else
+                  alert('스터디 가입 신청이 완료되었습니다.');
+                router.go();
+              }
+            }).catch(function (error) {
           console.error(error);
         });
-      }
-      else
-      {
-        if(!confirm("스터디를 신청하시겠습니까?"))
+      } else {
+        if (!confirm("스터디를 신청하시겠습니까?"))
           return;
         this.axios.post('/api/v1/studies/' + this.study.id + '/participate', {
           message: this.message
@@ -274,8 +299,8 @@ export default {
           },
           withCredentials: true
         })
-            .then(function(response) {
-              if(response.status === 200) {
+            .then(function (response) {
+              if (response.status === 200) {
                 alert('스터디에 가입되었습니다.');
                 router.go();
               }
@@ -283,6 +308,56 @@ export default {
           console.error(error);
         });
       }
+    },
+
+    cancelApplication() {
+      if (!confirm('신청을 취소하시겠습니까?'))
+        return;
+      this.axios.post('/api/v1/studies/' + this.study.id + '/cancel', {}, {
+        headers: {
+          'Access-Control-Allow-Origin': '*'
+        },
+        withCredentials: true
+      }).then(function (response) {
+        if (response.status === 200) {
+          alert('신청이 취소되었습니다.');
+          router.go();
+        }
+      }).catch(function (error) {
+        console.error(error);
+      });
+    },
+
+    withdrawStudy() {
+      if (!confirm('스터디를 정말 탈퇴하시겠습니까?'))
+        return;
+      this.axios.post('/api/v1/studies/' + this.study.id + '/withdraw', {}, {
+        headers: {
+          'Access-Control-Allow-Origin': '*'
+        },
+        withCredentials: true
+      }).then(function (response) {
+        if (response.status === 200) {
+          alert('탈퇴가 완료되었습니다.');
+          router.go();
+        }
+      }).catch(function (error) {
+        console.error(error);
+      });
+    },
+
+    copyToClipboard(val) {
+      const t = document.createElement("textarea");
+      document.body.appendChild(t);
+      t.value = val;
+      t.select();
+      document.execCommand('copy');
+      document.body.removeChild(t);
+    },
+
+    copyAccessUrl() {
+      this.copyToClipboard(this.domain_url + '/' + this.study.accessUrl);
+      alert('링크가 복사되었습니다.');
     }
   }
 }

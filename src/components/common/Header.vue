@@ -34,6 +34,7 @@
             <router-link class="btn btn-outline-primary" to="/join">회원가입</router-link>
           </form>
           <form class="d-flex" v-else>
+            <router-link class="btn btn-outline-primary me-3" to='/profile'>프로필</router-link>
             <button class="btn btn-outline-primary" @click=logout>로그아웃</button>
           </form>
         </div>
