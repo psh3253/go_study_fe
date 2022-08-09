@@ -100,11 +100,18 @@
       <div class="row row-cols-5 mb-4">
         <div class="col" v-for="participant in participants" :key="participant.id">
           <div class="card mx-1 my-1">
+            <div class="d-flex justify-content-end me-3 mt-3" style="height: 16px">
+              <router-link to='#' class="text-black" @click="kickOutParticipant(participant.id, participant.nickname)">
+                <svg v-if="participant.email !== study.creatorEmail && study.creatorEmail === user_email" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle-fill" viewBox="0 0 16 16">
+                  <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z"/>
+                </svg>
+              </router-link>
+            </div>
             <div class="d-flex justify-content-center">
-              <img v-if="participant.image !== null" :src="participant.image"
+              <img v-if="participant.image.startsWith('http')" :src="participant.image"
                    class="card-img-top rounded-circle mx-5 my-3" style="width: 50%; height: 50%" alt="">
-              <img v-else :src="default_image_url" class="card-img-top rounded-circle mx-5 my-3"
-                   style="width: 50%; height: 50%" alt="">
+              <img v-else :src="api_url + '/images/profile/' + participant.image"
+                   class="card-img-top rounded-circle mx-5 my-3" style="width: 50%; height: 50%" alt="">
             </div>
             <div class="card-body text-center">
               <h5 class="card-title">
@@ -115,8 +122,35 @@
                 </svg>&nbsp;{{ participant.nickname }}
               </h5>
               <p class="card-text"
-                 style="height: 70px; overflow: hidden;	text-overflow: ellipsis;	display: -webkit-box;	-webkit-line-clamp: 4;	-webkit-box-orient: vertical;	word-wrap:break-word;">
+                 style="height: 100px; overflow: hidden;	text-overflow: ellipsis;	display: -webkit-box;	-webkit-line-clamp: 4;	-webkit-box-orient: vertical;	word-wrap:break-word;">
                 {{ participant.introduce }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div v-if="study.creatorEmail === user_email">
+        <p class="fw-bold h3 text-center mb-3">스터디 가입 신청자</p>
+        <div class="row row-cols-5 mb-4">
+          <div class="col" v-for="applicant in applicants" :key="applicant.id">
+            <div class="card mx-1 my-1">
+              <div class="d-flex justify-content-center">
+                <img v-if="applicant.image.startsWith('http')" :src="applicant.image"
+                     class="card-img-top rounded-circle mx-5 my-3" style="width: 50%; height: 50%" alt="">
+                <img v-else :src="api_url + '/images/profile/' + applicant.image"
+                     class="card-img-top rounded-circle mx-5 my-3" style="width: 50%; height: 50%" alt="">
+              </div>
+              <div class="card-body text-center">
+                <h5 class="card-title">
+                  {{ applicant.nickname }}
+                </h5>
+                <p class="card-text mb-3"
+                   style="height: 100px; overflow: hidden;	text-overflow: ellipsis;	display: -webkit-box;	-webkit-line-clamp: 4;	-webkit-box-orient: vertical;	word-wrap:break-word;">
+                  {{ applicant.message }}</p>
+                <div class="d-flex justify-content-center mb-3">
+                  <button type="button" class="btn btn-success me-3" @click="acceptApplicant(applicant.id)">수락</button>
+                  <button type="button" class="btn btn-danger" @click="refuseApplicant(applicant.id)">거절</button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -167,7 +201,6 @@ export default {
       participants: null,
       applicants: null,
       image_url: null,
-      default_image_url: process.env.VUE_APP_API_URL + '/images/user-default-image',
       user_email: this.$cookies.get('UserEmail'),
       message: '',
       is_participant: false,
@@ -267,7 +300,6 @@ export default {
     },
 
     participateStudy() {
-      const vm = this;
       if (this.study.joinType === 'FREE') {
         if (!confirm("스터디를 신청하시겠습니까?"))
           return;
@@ -279,10 +311,7 @@ export default {
         })
             .then(function (response) {
               if (response.status === 200) {
-                if (vm.study.joinType === 'FREE')
                   alert('스터디 가입이 완료되었습니다.');
-                else
-                  alert('스터디 가입 신청이 완료되었습니다.');
                 router.go();
               }
             }).catch(function (error) {
@@ -301,7 +330,7 @@ export default {
         })
             .then(function (response) {
               if (response.status === 200) {
-                alert('스터디에 가입되었습니다.');
+                alert('스터디 가입 신청이 완료되었습니다.');
                 router.go();
               }
             }).catch(function (error) {
@@ -358,6 +387,54 @@ export default {
     copyAccessUrl() {
       this.copyToClipboard(this.domain_url + '/' + this.study.accessUrl);
       alert('링크가 복사되었습니다.');
+    },
+
+    kickOutParticipant(id, nickname) {
+      if(!confirm(nickname + '님을 스터디에서 내보내시겠습니까?'))
+        return;
+      this.axios.delete('/api/v1/participants/' + id, {
+        headers: {
+          'Access-Control-Allow-Origin': '*'
+        },
+        withCredentials: true
+      }).then(function(response) {
+        if(response.status === 200) {
+          alert(nickname + '님을 스터디에서 내보냈습니다.');
+          router.go();
+        }
+      }).catch(function(error) {
+        console.error(error);
+      });
+    },
+
+    acceptApplicant(id) {
+      this.axios.post('/api/v1/applicants/' + id, {}, {
+        headers: {
+          'Access-Control-Allow-Origin': '*'
+        },
+        withCredentials: true
+      }).then(function(response) {
+        if(response.status === 200) {
+          router.go();
+        }
+      }).catch(function(error) {
+        console.error(error);
+      });
+    },
+
+    refuseApplicant(id) {
+      this.axios.delete('/api/v1/applicants/' + id, {
+        headers: {
+          'Access-Control-Allow-Origin': '*'
+        },
+        withCredentials: true
+      }).then(function(response) {
+        if(response.status === 200) {
+          router.go();
+        }
+      }).catch(function(error) {
+        console.error(error);
+      });
     }
   }
 }

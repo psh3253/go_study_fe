@@ -1,6 +1,10 @@
 <template>
   <Header></Header>
-  <div class="my-3 mx-2">
+  <div class="d-flex justify-content-end my-3 mx-3">
+    <router-link class="btn btn-primary me-3" to="/profile/change-password">비밀번호 변경</router-link>
+    <router-link class="btn btn-primary" to="/profile/update">프로필 수정</router-link>
+  </div>
+  <div class="mb-3 mx-2">
     <div class="row row-cols-4">
       <div class="col" v-for="study in studies" :key="study.id">
         <router-link to='#' class="card mx-1 my-1 text-decoration-none text-black" @click="goStudyInfo(study.id)">

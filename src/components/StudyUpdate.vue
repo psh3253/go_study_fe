@@ -156,13 +156,13 @@ export default {
         alert('모집 인원은 현재 인원수인 ' + this.current_number + '명 이상 이여야 합니다.');
         return;
       } else if (this.name === '') {
-        alert('스터디명을 적어주세요.');
+        alert('스터디명을 입력해주세요.');
         return;
       } else if (this.introduce === '') {
-        alert('소개를 적어주세요.');
+        alert('소개를 입력해주세요.');
         return;
       } else if (this.type === 'OFFLINE' && this.location === '') {
-        alert('장소를 적어주세요.');
+        alert('장소를 입력해주세요.');
         return;
       }
       this.axios.patch('/api/v1/studies/' + this.id + '/', {

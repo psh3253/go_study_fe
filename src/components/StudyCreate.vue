@@ -141,13 +141,13 @@ export default {
         alert('모집 인원은 최소 1명 이여야 합니다.');
         return;
       } else if (this.name === '') {
-        alert('스터디명을 적어주세요.');
+        alert('스터디명을 입력해주세요.');
         return;
       } else if (this.introduce === '') {
-        alert('소개를 적어주세요.');
+        alert('소개를 입력해주세요.');
         return;
       } else if (this.type === 'OFFLINE' && this.location === '') {
-        alert('장소를 적어주세요.');
+        alert('장소를 입력해주세요.');
         return;
       } else if (!this.is_image_disabled && this.image === null) {
         alert('기본 이미지를 선택하거나 이미지를 업로드 해주세요.');

@@ -7,6 +7,8 @@ import StudyInfo from "@/components/StudyInfo";
 import StudyUpdate from "@/components/StudyUpdate";
 import StudyRedirect from "@/components/StudyRedirect";
 import Profile from "@/components/Profile";
+import ProfileUpdate from "@/components/ProfileUpdate";
+import PasswordChange from "@/components/PasswordChange";
 
 const routes = [
     {
@@ -48,6 +50,16 @@ const routes = [
         path: '/profile',
         name: 'Profile',
         component: Profile
+    },
+    {
+        path: '/profile/update',
+        name: 'ProfileUpdate',
+        component: ProfileUpdate
+    },
+    {
+        path: '/profile/change-password',
+        name: 'PasswordChange',
+        component: PasswordChange
     }
 
 ];
