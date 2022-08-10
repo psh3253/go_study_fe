@@ -27,10 +27,10 @@
           <div class="card-body">
             <h5 class="card-title">{{ study.name }}</h5>
             <p class="card-text h-6">{{ study.categoryName }}</p>
-            <p style="height: 100px; overflow: hidden;	text-overflow: ellipsis;	display: -webkit-box;	-webkit-line-clamp: 4;	-webkit-box-orient: vertical;	word-wrap:break-word;">
+            <p style="height: 40%; overflow: hidden;	text-overflow: ellipsis;	display: -webkit-box;	-webkit-line-clamp: 4;	-webkit-box-orient: vertical;	word-wrap:break-word;">
               {{ study.introduce }}</p>
             <div class="d-flex justify-content-end">
-              <div>
+              <div class="mb-3">
                 <svg v-if="study.joinType === 'APPROVAL'" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                      fill="currentColor" class="bi bi-shield-fill-check" viewBox="0 0 16 16">
                   <path fill-rule="evenodd"

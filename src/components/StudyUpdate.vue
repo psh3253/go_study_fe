@@ -177,6 +177,7 @@ export default {
         introduce: this.introduce
       }, {
         headers: {
+          'Access-Control-Allow-Origin': '*',
           'Content-Type': 'application/json'
         },
         withCredentials: true
