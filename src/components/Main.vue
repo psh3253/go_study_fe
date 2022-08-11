@@ -56,14 +56,13 @@
 </template>
 
 <script>
-import Header from './common/Header';
 import router from "@/router";
+import Header from "@/components/common/Header";
 
 export default {
   // eslint-disable-next-line vue/multi-word-component-names
   name: "Main",
   components: {
-    // eslint-disable-next-line vue/no-unused-components
     Header
   },
   data() {

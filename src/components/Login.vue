@@ -17,8 +17,8 @@
 </template>
 
 <script>
-import Header from './common/Header';
 import router from "@/router";
+import Header from "@/components/common/Header";
 
 export default {
   // eslint-disable-next-line vue/multi-word-component-names
@@ -30,7 +30,7 @@ export default {
     return {
       email: null,
       password: null,
-      kakao_login_url: process.env.VUE_APP_API_URL + "/oauth2/authorization/kakao"
+      kakao_login_url: process.env.VUE_APP_API_URL + "/oauth2/authorization/kakao",
     }
   },
   methods: {

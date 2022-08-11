@@ -6,7 +6,7 @@
       <div class="d-flex justify-content-between">
         <div class="d-flex mb-3">
           <label for="accessUrl" class="form-label"></label>
-          <input type="url" id="accessUrl" class="me-1" :value="domain_url + '/' + study.accessUrl" size="30"
+          <input type="url" id="accessUrl" class="me-1" :value="access_url" size="30"
                  disabled>
           <button type="button" class="btn btn-primary me-3" @click="copyAccessUrl">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard"
@@ -45,9 +45,6 @@
               <button type="button" class="btn btn-success" @click="cancelApplication">
                 스터디 신청 취소
               </button>
-            </div>
-            <div v-else>
-              <button type="button" class="btn btn-success">스터디 완료</button>
             </div>
           </div>
         </div>
@@ -98,22 +95,22 @@
       <div class="d-flex flex-column align-items-center">
         <ul class="nav nav-tabs mb-3" id="myTab" role="tablist">
           <li class="nav-item" role="presentation">
-            <button class="nav-link active fw-bold h5" id="home-tab" data-bs-toggle="tab" data-bs-target="#home"
-                    type="button" role="tab" aria-controls="home" aria-selected="true">정보
+            <button class="nav-link active fw-bold h5" id="info-tab" data-bs-toggle="tab" data-bs-target="#info"
+                    type="button" role="tab" aria-controls="info" aria-selected="true">정보
             </button>
           </li>
-          <li class="nav-item" role="presentation">
-            <button class="nav-link fw-bold h5" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile"
-                    type="button" role="tab" aria-controls="profile" aria-selected="false">게시글
+          <li v-if="is_participant" class="nav-item" role="presentation">
+            <button class="nav-link fw-bold h5" id="post-tab" data-bs-toggle="tab" data-bs-target="#post"
+                    type="button" role="tab" aria-controls="post" aria-selected="false">게시글
             </button>
           </li>
         </ul>
         <div class="tab-content" id="myTabContent" style="width: 100%">
-          <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
-            <StudyInfo :study="study" :participants="participants" :applicants="applicants"></StudyInfo>
+          <div class="tab-pane fade show active" id="info" role="tabpanel" aria-labelledby="info-tab">
+            <StudyInfo id="info" :study="study" :participants="participants" :applicants="applicants"></StudyInfo>
           </div>
-          <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
-            <StudyPost :study="study" :posts="posts"></StudyPost>
+          <div class="tab-pane fade" id="post" role="tabpanel" aria-labelledby="post-tab">
+            <StudyPost id="post" v-if="is_participant" :study="study"></StudyPost>
           </div>
         </div>
       </div>
@@ -146,20 +143,22 @@
 </template>
 
 <script>
-import Header from "@/components/common/Header";
 import router from "@/router";
 import StudyInfo from "@/components/StudyInfo";
 import StudyPost from "@/components/StudyPost";
+import Header from "@/components/common/Header";
 
 export default {
-  name: "StudyDetail",
+  name: "StudyDetails",
   components: {
+    // eslint-disable-next-line vue/no-unused-components
     Header, StudyInfo, StudyPost
   },
   data() {
     return {
       api_url: process.env.VUE_APP_API_URL,
       domain_url: process.env.VUE_APP_DOMAIN_URL,
+      access_url: null,
       isLogin: this.$cookies.get('IsLogin'),
       study: null,
       participants: null,
@@ -188,6 +187,7 @@ export default {
           if (response.status === 200) {
             vm.study = response.data;
             vm.image_url = vm.api_url + '/images/study/thumbnail_' + vm.study.filename;
+            vm.access_url = vm.domain_url + '/' + vm.study.accessUrl;
           }
         }).catch(function (error) {
       console.error(error);
@@ -219,17 +219,6 @@ export default {
         vm.applicants = response.data;
         if (vm.applicants.filter(applicant => applicant.email === vm.user_email).length > 0)
           vm.is_applicant = true;
-      }
-    });
-
-    this.axios.get('/api/v1/studies/' + this.$route.params.id + '/posts', {
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-      },
-      withCredentials: true
-    }).then(function (response) {
-      if (response.status === 200) {
-        vm.posts = response.data;
       }
     });
   },
@@ -296,7 +285,7 @@ export default {
       } else {
         if (!confirm("스터디를 신청하시겠습니까?"))
           return;
-        this.axios.post('/api/v1/studies/' + this.study.id + '/participate', {
+        this.axios.post('/api/v1/studies/' + this.study.id + '/participants', {
           message: this.message
         }, {
           headers: {

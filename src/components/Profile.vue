@@ -1,9 +1,5 @@
 <template>
   <Header></Header>
-  <!--  <div class="d-flex justify-content-end my-3 mx-3">-->
-  <!--    <router-link class="btn btn-primary me-3" to="/profile/change-password">비밀번호 변경</router-link>-->
-  <!--    <router-link class="btn btn-primary" to="/profile/update">프로필 수정</router-link>-->
-  <!--  </div>-->
   <div class="d-flex">
     <div class="d-flex">
     <div class="card mx-3 my-3" style="width: 400px; height: min-content">
@@ -80,11 +76,11 @@ import Header from "@/components/common/Header";
 import router from "@/router";
 
 export default {
+  // eslint-disable-next-line vue/multi-word-component-names
+  name: "Profile",
   components: {
     Header
   },
-  // eslint-disable-next-line vue/multi-word-component-names
-  name: "Profile",
   data() {
     return {
       api_url: process.env.VUE_APP_API_URL,

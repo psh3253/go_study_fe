@@ -9,7 +9,6 @@ import Profile from "@/components/Profile";
 import ProfileUpdate from "@/components/ProfileUpdate";
 import PasswordChange from "@/components/PasswordChange";
 import StudyDetails from "@/components/StudyDetails";
-import PostCreate from "@/components/PostCreate";
 
 const routes = [
     {
@@ -35,7 +34,7 @@ const routes = [
     {
         path: '/studies/:id',
         name: 'StudyDetails',
-        component: StudyDetails
+        component: StudyDetails,
     },
     {
         path: '/studies/:id/update',
@@ -62,12 +61,6 @@ const routes = [
         name: 'PasswordChange',
         component: PasswordChange
     },
-    {
-        path: '/studies/:id/posts/create',
-        name: 'PostCreate',
-        component: PostCreate
-    }
-
 ];
 
 const router = createRouter({

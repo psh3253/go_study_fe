@@ -25,8 +25,12 @@
 
 <script>
 import router from "@/router"
+import Header from "@/components/common/Header";
 
 export default {
+  components: {
+    Header
+  },
   // eslint-disable-next-line vue/multi-word-component-names
   name: "Join",
   data() {

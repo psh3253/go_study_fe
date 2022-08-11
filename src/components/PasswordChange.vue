@@ -14,15 +14,15 @@
         <label for="confirm-new-password" class="form-label">새 비밀번호 확인</label>
         <input type="password" class="form-control" id="confirm-new-password" v-model="confirm_new_password" size="30">
       </div>
-      <button type="button" @click="changePassword" class="btn btn-primary me-3">변경</button>
+      <button type="button" @click="changePassword" class="btn btn-primary">변경</button>
     </form>
   </div>
 
 </template>
 
 <script>
-import Header from "@/components/common/Header";
 import router from "@/router";
+import Header from "@/components/common/Header";
 
 export default {
   name: "PasswordChange",
