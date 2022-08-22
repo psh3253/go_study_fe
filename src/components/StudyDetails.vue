@@ -254,7 +254,7 @@ export default {
         .then(function (response) {
           if (response.status === 200) {
             vm.study = response.data;
-            vm.image_url = vm.api_url + '/images/study/thumbnail_' + vm.study.filename;
+            vm.image_url = vm.api_url + '/images/study/' + vm.study.filename;
             vm.access_url = vm.domain_url + '/' + vm.study.accessUrl;
           }
         }).catch(function (error) {

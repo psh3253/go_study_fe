@@ -25,7 +25,7 @@
             <div class="carousel" data-bs-ride="carousel">
               <div class="carousel-inner">
                 <div class="carousel-item active">
-                  <img :src="api_url + '/images/study/thumbnail_' + study.filename" class="card-img-top" alt="">
+                  <img :src="api_url + '/images/study/' + study.filename" class="card-img-top" alt="">
                   <div class="carousel-caption">
                     <div class="opacity-75 bg-white rounded-pill text-dark">
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
