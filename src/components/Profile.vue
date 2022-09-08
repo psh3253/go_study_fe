@@ -89,31 +89,35 @@ export default {
       isLogin: this.$cookies.get("IsLogin")
     }
   },
-  created() {
+  async created() {
     const vm = this;
     if (this.isLogin === null || this.isLogin === 'false') {
       window.location.href = '/login';
       return;
     }
-    this.axios.get("/api/v1/my-profile", {
+    await this.axios.get("/api/v1/my-profile", {
       headers: {
         'Access-Control-Allow-Origin': '*',
       },
       withCredentials: true
     }).then(function (response) {
       if (response.status === 200) {
+        if(response.data.accessToken !== undefined)
+          router.go();
         vm.profile = response.data;
       }
     }).catch(function (error) {
       console.error(error);
     })
-    this.axios.get("/api/v1/my-studies", {
+    await this.axios.get("/api/v1/my-studies", {
       headers: {
         'Access-Control-Allow-Origin': '*',
       },
       withCredentials: true
     }).then(function (response) {
       if (response.status === 200) {
+        if(response.data.accessToken !== undefined)
+          router.go();
         vm.studies = response.data;
       }
     }).catch(function (error) {

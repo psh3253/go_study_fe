@@ -101,9 +101,9 @@ export default {
   components: {
     Header
   },
-  created() {
+  async created() {
     const vm = this;
-    this.axios.get('/api/v1/categories', {
+    await this.axios.get('/api/v1/categories', {
       headers: {
         'Access-Control-Allow-Origin': '*',
       },
@@ -111,13 +111,15 @@ export default {
     })
         .then(function (response) {
           if (response.status === 200) {
+            if(response.data.accessToken !== undefined)
+              router.go();
             vm.categories = response.data
           }
         }).catch(function (error) {
       console.error(error);
     });
 
-    this.axios.get('/api/v1/studies/' + this.$route.params.id, {
+    await this.axios.get('/api/v1/studies/' + this.$route.params.id, {
       headers: {
         'Access-Control-Allow-Origin': '*',
       },
@@ -150,7 +152,7 @@ export default {
     }
   },
   methods: {
-    updateStudy() {
+    async updateStudy() {
       const vm = this;
       if (this.recruitment_number < this.current_number) {
         alert('모집 인원은 현재 인원수인 ' + this.current_number + '명 이상 이여야 합니다.');
@@ -165,7 +167,7 @@ export default {
         alert('장소를 입력해주세요.');
         return;
       }
-      this.axios.patch('/api/v1/studies/' + this.id + '/', {
+      await this.axios.patch('/api/v1/studies/' + this.id + '/', {
         id: this.id,
         name: this.name,
         category_id: this.category,
@@ -183,6 +185,10 @@ export default {
         withCredentials: true
       }).then(function(response) {
         if(response.status === 200) {
+          if(response.data.accessToken !== undefined) {
+            vm.updateStudy();
+            return;
+          }
           router.push('/studies/' + vm.id);
         }
       }).catch(function (error) {

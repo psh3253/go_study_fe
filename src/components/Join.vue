@@ -42,7 +42,7 @@ export default {
     }
   },
   methods: {
-    join() {
+    async join() {
       if (this.email === '') {
         alert('이메일을 입력해주세요.');
         return;
@@ -59,7 +59,7 @@ export default {
         alert('비밀번호와 비밀번호 확인이 일치하지 않습니다.');
         return;
       }
-      this.axios.post('/api/v1/join', {
+      await this.axios.post('/api/v1/join', {
         'email': this.email,
         'password': this.password,
         'nickname': this.nickname

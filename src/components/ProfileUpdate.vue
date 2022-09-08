@@ -45,19 +45,21 @@ export default {
       isLogin: this.$cookies.get('IsLogin')
     }
   },
-  created() {
+  async created() {
     if (this.isLogin === null || this.isLogin === 'false') {
       window.location.href = '/login';
       return;
     }
     const vm = this;
-    this.axios.get('/api/v1/my-profile', {
+    await this.axios.get('/api/v1/my-profile', {
       headers: {
         'Access-Control-Allow-Origin': '*',
       },
       withCredentials: true
     }).then(function (response) {
       if (response.status === 200) {
+        if(response.data.accessToken !== undefined)
+          router.go();
         const profile = response.data;
         vm.nickname = profile.nickname;
         vm.introduce = profile.introduce;
@@ -68,7 +70,8 @@ export default {
     selectImage() {
       this.image = this.$refs.image.files;
     },
-    saveProfile() {
+    async saveProfile() {
+      const vm = this;
       if (this.nickname === '') {
         alert('닉네임을 입력해주세요.');
         return;
@@ -79,7 +82,7 @@ export default {
       if (this.image !== null)
         formData.append('image', this.image[0]);
       formData.append('introduce', this.introduce);
-      this.axios.patch('/api/v1/profile', formData, {
+      await this.axios.patch('/api/v1/profile', formData, {
         headers: {
           'Access-Control-Allow-Origin': '*',
           'Content-Type': 'multipart/form-data',
@@ -87,6 +90,10 @@ export default {
         withCredentials: true
       }).then(function (response) {
         if (response.status === 200) {
+          if(response.data.accessToken !== undefined) {
+            vm.saveProfile();
+            return;
+          }
           router.push('/profile');
         }
       }).catch(function (error) {

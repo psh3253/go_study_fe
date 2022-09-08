@@ -32,7 +32,7 @@ export default {
     this.id = this.post.id;
   },
   methods: {
-    updatePost() {
+    async updatePost() {
       const vm = this;
       if(this.title === '') {
         alert('제목을 입력해주세요');
@@ -40,7 +40,7 @@ export default {
       } else if(this.content === '') {
         alert('내용을 입력해주세요.');
       }
-      this.axios.patch('/api/v1/studies/' + this.study.id + '/posts/' + this.post.id, {
+      await this.axios.patch('/api/v1/studies/' + this.study.id + '/posts/' + this.post.id, {
         id: this.id,
         title: this.title,
         content: this.content
@@ -52,6 +52,11 @@ export default {
         withCredentials: true
       }).then(function (response) {
         if(response.status === 200) {
+          if(response.data.accessToken !== undefined)
+          {
+            vm.updatePost();
+            return;
+          }
           vm.$emit('updatePosts');
         }
       }).catch(function(error) {

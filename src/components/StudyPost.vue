@@ -92,6 +92,7 @@
 
 import PostUpdate from "@/components/PostUpdate";
 import PostCreate from "@/components/PostCreate";
+import router from "@/router";
 
 export default {
   name: "StudyPost",
@@ -111,43 +112,53 @@ export default {
       comment: null
     }
   },
-  created() {
+  async created() {
     const vm = this;
-    this.axios.get('/api/v1/studies/' + this.$route.params.id + '/posts', {
+    await this.axios.get('/api/v1/studies/' + this.$route.params.id + '/posts', {
       headers: {
         'Access-Control-Allow-Origin': '*',
       },
       withCredentials: true
     }).then(function (response) {
       if (response.status === 200) {
+        if(response.data.accessToken !== undefined)
+          router.go();
         vm.posts = response.data;
       }
     });
   },
   methods: {
-    updatePosts() {
+    async updatePosts() {
       const vm = this;
-      this.axios.get('/api/v1/studies/' + this.$route.params.id + '/posts', {
+      await this.axios.get('/api/v1/studies/' + this.$route.params.id + '/posts', {
         headers: {
           'Access-Control-Allow-Origin': '*',
         },
         withCredentials: true
       }).then(function (response) {
         if (response.status === 200) {
+          if(response.data.accessToken !== undefined) {
+            vm.updatePosts();
+            return;
+          }
           vm.posts = response.data;
           vm.mode = 0;
         }
       });
     },
-    updateComments() {
+    async updateComments() {
       const vm = this;
-      this.axios.get('/api/v1/studies/' + this.study.id + '/posts/' + this.post.id + '/comments', {
+      await this.axios.get('/api/v1/studies/' + this.study.id + '/posts/' + this.post.id + '/comments', {
         headers: {
           'Access-Control-Allow-Origin': '*'
         },
         withCredentials: true
       }).then(function (response) {
         if (response.status === 200) {
+          if(response.data.accessToken !== undefined) {
+            vm.updateComments();
+            return;
+          }
           vm.comments = response.data;
           vm.mode = 1;
         }
@@ -155,15 +166,19 @@ export default {
         console.error(error);
       });
     },
-    getPost(post_id) {
+    async getPost(post_id) {
       const vm = this;
-      this.axios.get('/api/v1/studies/' + this.study.id + '/posts/' + post_id, {
+      await this.axios.get('/api/v1/studies/' + this.study.id + '/posts/' + post_id, {
         headers: {
           'Access-Control-Allow-Origin': '*'
         },
         withCredentials: true
       }).then(function (response) {
         if (response.status === 200) {
+          if(response.data.accessToken !== undefined) {
+            vm.getPost(post_id);
+            return;
+          }
           vm.post = response.data;
           vm.mode = 1;
         }
@@ -171,13 +186,17 @@ export default {
         console.error(error);
       });
 
-      this.axios.get('/api/v1/studies/' + this.study.id + '/posts/' + post_id + '/comments', {
+      await this.axios.get('/api/v1/studies/' + this.study.id + '/posts/' + post_id + '/comments', {
         headers: {
           'Access-Control-Allow-Origin': '*'
         },
         withCredentials: true
       }).then(function (response) {
         if (response.status === 200) {
+          if(response.data.accessToken !== undefined) {
+            vm.getPost(post_id);
+            return;
+          }
           vm.comments = response.data;
           vm.mode = 1;
         }
@@ -185,17 +204,21 @@ export default {
         console.error(error);
       });
     },
-    deletePost(post_id) {
+    async deletePost(post_id) {
       const vm = this;
       if (!confirm('게시글을 삭제하시겠습니까?'))
         return;
-      this.axios.delete('/api/v1/studies/' + this.study.id + '/posts/' + post_id, {
+      await this.axios.delete('/api/v1/studies/' + this.study.id + '/posts/' + post_id, {
         headers: {
           'Access-Control-Allow-Origin': '*'
         },
         withCredentials: true
       }).then(function (response) {
         if (response.status === 200) {
+          if(response.data.accessToken !== undefined) {
+            vm.deletePost(post_id);
+            return;
+          }
           alert('게시글이 삭제되었습니다.');
           vm.updatePosts();
         }
@@ -203,10 +226,10 @@ export default {
         console.error(error);
       });
     },
-    createComment() {
+    async createComment() {
       const vm = this;
       console.log(this.post.id);
-      this.axios.post('/api/v1/studies/' + this.study.id + '/posts/' + this.post.id + '/comments', {
+      await this.axios.post('/api/v1/studies/' + this.study.id + '/posts/' + this.post.id + '/comments', {
         content: this.comment
       }, {
         headers: {
@@ -216,6 +239,10 @@ export default {
         withCredentials: true
       }).then(function (response) {
         if (response.status === 200) {
+          if(response.data.accessToken !== undefined) {
+            vm.createComment();
+            return;
+          }
           vm.comment = '';
           vm.updateComments();
         }
@@ -223,11 +250,11 @@ export default {
         console.error(error);
       });
     },
-    deleteComment(comment_id) {
+    async deleteComment(comment_id) {
       if(!confirm('댓글을 삭제하시겠습니까?'))
         return;
       const vm = this;
-      this.axios.delete('/api/v1/studies/' + this.study.id + '/posts/' + this.post.id + '/comments/' + comment_id,
+      await this.axios.delete('/api/v1/studies/' + this.study.id + '/posts/' + this.post.id + '/comments/' + comment_id,
           {
             headers: {
               'Access-Control-Allow-Origin': '*'
@@ -235,6 +262,10 @@ export default {
             withCredentials: true
           }).then(function (response) {
         if (response.status === 200) {
+          if(response.data.accessToken !== undefined) {
+            vm.deleteComment(comment_id);
+            return;
+          }
           alert('댓글이 삭제되었습니다.');
           vm.updateComments();
         }

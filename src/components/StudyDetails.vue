@@ -107,7 +107,7 @@
         </ul>
         <div class="tab-content" id="myTabContent" style="width: 100%">
           <div class="tab-pane fade show active" id="info" role="tabpanel" aria-labelledby="info-tab">
-<!--            <StudyInfo id="info" :study="study" :participants="participants" :applicants="applicants"></StudyInfo>-->
+            <!--            <StudyInfo id="info" :study="study" :participants="participants" :applicants="applicants"></StudyInfo>-->
             <div>
               <p class="fw-bold h3 text-center mb-3">스터디 소개</p>
               <p class="mb-5" style="word-break: break-all">{{ study.introduce }}</p>
@@ -135,7 +135,8 @@
                     </div>
                     <div class="card-body text-center">
                       <h5 class="card-title">
-                        <svg v-if="participant.email === study.creatorEmail" xmlns="http://www.w3.org/2000/svg" width="16"
+                        <svg v-if="participant.email === study.creatorEmail" xmlns="http://www.w3.org/2000/svg"
+                             width="16"
                              height="16" fill="currentColor" class="bi bi-star-fill" viewBox="0 0 16 16">
                           <path style="fill: gold"
                                 d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"/>
@@ -169,7 +170,8 @@
                         <div class="d-flex justify-content-center mb-3">
                           <button type="button" class="btn btn-success me-3" @click="acceptApplicant(applicant.id)">수락
                           </button>
-                          <button type="button" class="btn btn-danger" @click="refuseApplicant(applicant.id)">거절</button>
+                          <button type="button" class="btn btn-danger" @click="refuseApplicant(applicant.id)">거절
+                          </button>
                         </div>
                       </div>
                     </div>
@@ -239,13 +241,13 @@ export default {
       is_applicant: false
     }
   },
-  created() {
+  async created() {
     const vm = this;
     if (this.isLogin === null || this.isLogin === 'false') {
       window.location.href = '/login';
       return;
     }
-    this.axios.get('/api/v1/studies/' + this.$route.params.id, {
+    await this.axios.get('/api/v1/studies/' + this.$route.params.id, {
       headers: {
         'Access-Control-Allow-Origin': '*',
       },
@@ -253,15 +255,17 @@ export default {
     })
         .then(function (response) {
           if (response.status === 200) {
+            if (response.data.accessToken !== undefined)
+              router.go();
             vm.study = response.data;
             vm.image_url = vm.api_url + '/images/study/' + vm.study.filename;
             vm.access_url = vm.domain_url + '/' + vm.study.accessUrl;
           }
         }).catch(function (error) {
-      console.error(error);
-    });
+          console.error(error);
+        });
 
-    this.axios.get('/api/v1/studies/' + this.$route.params.id + '/participants', {
+    await this.axios.get('/api/v1/studies/' + this.$route.params.id + '/participants', {
       headers: {
         'Access-Control-Allow-Origin': '*',
       },
@@ -269,21 +273,25 @@ export default {
     })
         .then(function (response) {
           if (response.status === 200) {
+            if (response.data.accessToken !== undefined)
+              router.go();
             vm.participants = response.data;
             if (vm.participants.filter(participant => participant.email === vm.user_email).length > 0)
               vm.is_participant = true;
           }
         }).catch(function (error) {
-      console.error(error);
-    });
+          console.error(error);
+        });
 
-    this.axios.get('/api/v1/studies/' + this.$route.params.id + '/applicants', {
+    await this.axios.get('/api/v1/studies/' + this.$route.params.id + '/applicants', {
       headers: {
         'Access-Control-Allow-Origin': '*',
       },
       withCredentials: true
     }).then(function (response) {
       if (response.status === 200) {
+        if (response.data.accessToken !== undefined)
+          router.go();
         vm.applicants = response.data;
         if (vm.applicants.filter(applicant => applicant.email === vm.user_email).length > 0)
           vm.is_applicant = true;
@@ -296,16 +304,21 @@ export default {
     }
   },
   methods: {
-    closeStudy() {
+    async closeStudy() {
+      const vm = this;
       if (!confirm("스터디가 마감되면 더 이상 모집, 수정, 삭제할 수 없습니다. 마감하시겠습니까?"))
         return;
-      this.axios.post('/api/v1/studies/' + this.study.id + '/close', {}, {
+      await this.axios.post('/api/v1/studies/' + this.study.id + '/close', {}, {
         headers: {
           'Access-Control-Allow-Origin': '*'
         },
         withCredentials: true
       }).then(function (response) {
         if (response.status === 200) {
+          if (response.data.accessToken !== undefined) {
+            vm.closeStudy();
+            return;
+          }
           alert('스터디가 마감되었습니다.');
           router.go();
         }
@@ -314,16 +327,21 @@ export default {
       })
     },
 
-    deleteStudy() {
+    async deleteStudy() {
+      const vm = this;
       if (!confirm("스터디를 삭제하시겠습니까?"))
         return;
-      this.axios.delete('/api/v1/studies/' + this.study.id, {
+      await this.axios.delete('/api/v1/studies/' + this.study.id, {
         headers: {
           'Access-Control-Allow-Origin': '*'
         },
         withCredentials: true
       }).then(function (response) {
         if (response.status === 200) {
+          if (response.data.accessToken !== undefined) {
+            vm.deleteStudy();
+            return;
+          }
           alert('스터디가 삭제되었습니다.');
           router.replace('/');
         }
@@ -332,11 +350,12 @@ export default {
       })
     },
 
-    participateStudy() {
+    async participateStudy() {
+      const vm = this;
       if (this.study.joinType === 'FREE') {
         if (!confirm("스터디를 가입하시겠습니까?"))
           return;
-        this.axios.post('/api/v1/studies/' + this.study.id + '/participants', {}, {
+        await this.axios.post('/api/v1/studies/' + this.study.id + '/participants', {}, {
           headers: {
             'Access-Control-Allow-Origin': '*'
           },
@@ -344,6 +363,10 @@ export default {
         })
             .then(function (response) {
               if (response.status === 200) {
+                if (response.data.accessToken !== undefined) {
+                  vm.participateStudy();
+                  return;
+                }
                 alert('스터디 가입이 완료되었습니다.');
                 router.go();
               }
@@ -353,7 +376,7 @@ export default {
       } else {
         if (!confirm("스터디를 신청하시겠습니까?"))
           return;
-        this.axios.post('/api/v1/studies/' + this.study.id + '/participants', {
+        await this.axios.post('/api/v1/studies/' + this.study.id + '/participants', {
           message: this.message
         }, {
           headers: {
@@ -363,6 +386,10 @@ export default {
         })
             .then(function (response) {
               if (response.status === 200) {
+                if (response.data.accessToken !== undefined) {
+                  vm.participateStudy();
+                  return;
+                }
                 alert('스터디 가입 신청이 완료되었습니다.');
                 router.go();
               }
@@ -372,16 +399,21 @@ export default {
       }
     },
 
-    cancelApplication() {
+    async cancelApplication() {
+      const vm = this;
       if (!confirm('신청을 취소하시겠습니까?'))
         return;
-      this.axios.post('/api/v1/studies/' + this.study.id + '/cancel', {}, {
+      await this.axios.post('/api/v1/studies/' + this.study.id + '/cancel', {}, {
         headers: {
           'Access-Control-Allow-Origin': '*'
         },
         withCredentials: true
       }).then(function (response) {
         if (response.status === 200) {
+          if (response.data.accessToken !== undefined) {
+            vm.cancelApplication();
+            return;
+          }
           alert('신청이 취소되었습니다.');
           router.go();
         }
@@ -390,7 +422,8 @@ export default {
       });
     },
 
-    withdrawStudy() {
+    async withdrawStudy() {
+      const vm = this;
       if (!confirm('스터디를 정말 탈퇴하시겠습니까?'))
         return;
       this.axios.post('/api/v1/studies/' + this.study.id + '/withdraw', {}, {
@@ -400,6 +433,10 @@ export default {
         withCredentials: true
       }).then(function (response) {
         if (response.status === 200) {
+          if (response.data.accessToken !== undefined) {
+            vm.withdrawStudy();
+            return;
+          }
           alert('탈퇴가 완료되었습니다.');
           router.go();
         }
@@ -422,16 +459,21 @@ export default {
       alert('링크가 복사되었습니다.');
     },
 
-    kickOutParticipant(id, nickname) {
+    async kickOutParticipant(id, nickname) {
+      const vm =this;
       if (!confirm(nickname + '님을 스터디에서 내보내시겠습니까?'))
         return;
-      this.axios.delete('/api/v1/studies/' + this.study.id + '/participants/' + id, {
+      await this.axios.delete('/api/v1/studies/' + this.study.id + '/participants/' + id, {
         headers: {
           'Access-Control-Allow-Origin': '*'
         },
         withCredentials: true
       }).then(function (response) {
         if (response.status === 200) {
+          if (response.data.accessToken !== undefined) {
+            vm.kickOutParticipant(id, nickname);
+            return;
+          }
           alert(nickname + '님을 스터디에서 내보냈습니다.');
           router.go();
         }
@@ -440,13 +482,18 @@ export default {
       });
     },
 
-    acceptApplicant(id) {
-      this.axios.post('/api/v1/studies/' + this.study.id + '/applicants/' + id, {}, {
+    async acceptApplicant(id) {
+      const vm =this;
+      await this.axios.post('/api/v1/studies/' + this.study.id + '/applicants/' + id, {}, {
         headers: {
           'Access-Control-Allow-Origin': '*'
         },
         withCredentials: true
       }).then(function (response) {
+        if (response.data.accessToken !== undefined) {
+          vm.acceptApplicant(id);
+          return;
+        }
         if (response.status === 200) {
           router.go();
         }
@@ -456,14 +503,19 @@ export default {
       });
     },
 
-    refuseApplicant(id) {
-      this.axios.delete('/api/v1/studies/' + this.study.id + '/applicants/' + id, {
+    async refuseApplicant(id) {
+      const vm = this;
+      await this.axios.delete('/api/v1/studies/' + this.study.id + '/applicants/' + id, {
         headers: {
           'Access-Control-Allow-Origin': '*'
         },
         withCredentials: true
       }).then(function (response) {
         if (response.status === 200) {
+          if (response.data.accessToken !== undefined) {
+            vm.refuseApplicant(id);
+            return;
+          }
           router.go();
         }
       }).catch(function (error) {

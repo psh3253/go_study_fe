@@ -37,7 +37,8 @@ export default {
     }
   },
   methods: {
-    changePassword() {
+    async changePassword() {
+      const vm = this;
       if (this.current_password === '') {
         alert('현재 비밀번호를 입력해주세요.');
         return;
@@ -48,7 +49,7 @@ export default {
         alert('새 비밀번호 확인을 입력해주세요.');
         return;
       }
-      this.axios.post('/api/v1/change-password', {
+      await this.axios.post('/api/v1/change-password', {
         current_password: this.current_password,
         new_password: this.new_password
       }, {
@@ -59,6 +60,10 @@ export default {
         withCredentials: true
       }).then(function (response) {
         if (response.status === 200) {
+          if(response.data.accessToken !== undefined){
+            vm.changePassword()
+            return;
+          }
           alert('비밀번호가 변경되었습니다.');
           router.push('/profile');
         }

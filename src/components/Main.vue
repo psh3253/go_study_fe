@@ -72,9 +72,9 @@ export default {
       isLogin: this.$cookies.get('IsLogin')
     }
   },
-  created() {
+  async created() {
     const vm = this;
-    this.axios.get('/api/v1/studies', {
+    await this.axios.get('/api/v1/studies', {
       headers: {
         'Access-Control-Allow-Origin': '*',
       },

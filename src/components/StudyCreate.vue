@@ -116,9 +116,9 @@ export default {
       introduce: ""
     }
   },
-  created() {
+  async created() {
     const vm = this;
-    this.axios.get('/api/v1/categories', {
+    await this.axios.get('/api/v1/categories', {
       headers: {
         'Access-Control-Allow-Origin': '*',
       },
@@ -126,6 +126,8 @@ export default {
     })
         .then(function (response) {
           if (response.status === 200) {
+            if (response.data.accessToken !== undefined)
+              router.go()
             vm.categories = response.data
           }
         }).catch(function (error) {
@@ -133,7 +135,8 @@ export default {
     });
   },
   methods: {
-    createStudy() {
+    async createStudy() {
+      const vm  =this;
       if (this.category === 0) {
         alert('카테고리를 선택해주세요.');
         return;
@@ -164,7 +167,7 @@ export default {
       formData.append('visibility', this.visibility);
       formData.append('joinType', this.join_type);
       formData.append('introduce', this.introduce);
-      this.axios.post('/api/v1/studies', formData, {
+      await this.axios.post('/api/v1/studies', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           'Access-Control-Allow-Origin': '*'
@@ -172,6 +175,10 @@ export default {
         withCredentials: true
       }).then(function (response) {
         if (response.status === 200) {
+          if (response.data.accessToken !== undefined) {
+            vm.createStudy();
+            return;
+          }
           router.push('/');
         }
       }).catch(function (error) {

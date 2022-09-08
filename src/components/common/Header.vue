@@ -34,17 +34,16 @@ export default {
     }
   },
   methods: {
-    logout() {
-      this.axios.post("/logout", {}, {
+    async logout() {
+      await this.axios.post("/logout", {}, {
         headers: {
           'Access-Control-Allow-Origin': '*',
         },
         withCredentials: true
       })
           .then(function (response) {
-            // eslint-disable-next-line no-empty
             if (response.status === 200) {
-
+              window.location.href = '/';
             }
           }).catch(function (error) {
         console.error(error);
