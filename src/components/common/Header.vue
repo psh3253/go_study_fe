@@ -35,6 +35,7 @@ export default {
   },
   methods: {
     async logout() {
+      const vm = this;
       await this.axios.post("/logout", {}, {
         headers: {
           'Access-Control-Allow-Origin': '*',
@@ -43,6 +44,11 @@ export default {
       })
           .then(function (response) {
             if (response.status === 200) {
+              if(response.data.accessToken !== undefined)
+              {
+                vm.logout();
+                return;
+              }
               window.location.href = '/';
             }
           }).catch(function (error) {

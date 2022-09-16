@@ -41,16 +41,16 @@ export default {
     return {
       is_image_disabled: false,
       nickname: null,
-      introduce: null,
+      introduce: "",
       isLogin: this.$cookies.get('IsLogin')
     }
   },
   async created() {
+    const vm = this;
     if (this.isLogin === null || this.isLogin === 'false') {
       window.location.href = '/login';
       return;
     }
-    const vm = this;
     await this.axios.get('/api/v1/my-profile', {
       headers: {
         'Access-Control-Allow-Origin': '*',
@@ -62,9 +62,12 @@ export default {
           router.go();
         const profile = response.data;
         vm.nickname = profile.nickname;
-        vm.introduce = profile.introduce;
+        if(profile.introduce != null)
+          vm.introduce = profile.introduce;
       }
-    })
+    }).catch(function(error) {
+      console.error(error);
+    });
   },
   methods: {
     selectImage() {
@@ -74,6 +77,9 @@ export default {
       const vm = this;
       if (this.nickname === '') {
         alert('닉네임을 입력해주세요.');
+        return;
+      } else if (!this.is_image_disabled && this.image === null) {
+        alert('기본 이미지를 선택하거나 이미지를 업로드 해주세요.');
         return;
       }
       const formData = new FormData();
@@ -103,7 +109,7 @@ export default {
   },
   watch: {
     introduce: function () {
-      this.introduce = this.introduce.substring(0, 50);
+        this.introduce = this.introduce.substring(0, 50);
     },
     is_image_disabled: function () {
       if (this.is_image_disabled === true) {
